@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>run</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:3.0.0:exec</goal>
+            </goals>
+            <properties>
+                <exec.vmArgs></exec.vmArgs>
+                <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
+                <exec.appArgs>"K{-promenne a in [-1,0,1] b in [-1,0,1] -pole (a b) -podminky (a b) prazdny|opacny -ee (0 0)_rosada = false}{-pole (0 2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 1) neohrozeny (0 1) prazdny (0 2) prazdny (0 0) *rosada (0 3) *rosada -ee (0 0)_rosada = false (0 3) -&gt; (0 1)} {-pole (0 -2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 -1) neohrozeny (0 -2) neohrozeny (0 -1) prazdny (0 -2) prazdny (0 -3) prazdny (0 0) *rosada (0 -4) *rosada -ee (0 0)_rosada = false (0 -4) -&gt; (0 -1)} rosada" "R{-promenne a in &lt;-7,7&gt; b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee (0 0)_rosada = false}{-promenne a in &lt;-7,7&gt; b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee (0 0)_rosada = false} rosada" ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . R . ." ". . . . . . . ." "r . . . k . . r" tb</exec.appArgs>
+                <exec.mainClass>${packageClassName}</exec.mainClass>
+                <exec.executable>java</exec.executable>
+            </properties>
+        </action>
+        <action>
+            <actionName>debug</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:3.0.0:exec</goal>
+            </goals>
+            <properties>
+                <exec.vmArgs>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</exec.vmArgs>
+                <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
+                <exec.appArgs>"K{-promenne a in [-1,0,1] b in [-1,0,1] -pole (a b) -podminky (a b) prazdny|opacny -ee (0 0)_rosada = false}{-pole (0 2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 1) neohrozeny (0 1) prazdny (0 2) prazdny (0 0) *rosada (0 3) *rosada -ee (0 0)_rosada = false (0 3) -&gt; (0 1)} {-pole (0 -2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 -1) neohrozeny (0 -2) neohrozeny (0 -1) prazdny (0 -2) prazdny (0 -3) prazdny (0 0) *rosada (0 -4) *rosada -ee (0 0)_rosada = false (0 -4) -&gt; (0 -1)} rosada" "R{-promenne a in &lt;-7,7&gt; b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee (0 0)_rosada = false}{-promenne a in &lt;-7,7&gt; b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee (0 0)_rosada = false} rosada" ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . R . ." ". . . . . . . ." "r . . . k . . r" tb</exec.appArgs>
+                <exec.mainClass>${packageClassName}</exec.mainClass>
+                <exec.executable>java</exec.executable>
+                <jpda.listen>true</jpda.listen>
+            </properties>
+        </action>
+        <action>
+            <actionName>profile</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:3.0.0:exec</goal>
+            </goals>
+            <properties>
+                <exec.vmArgs></exec.vmArgs>
+                <exec.args>${exec.vmArgs} -classpath %classpath ${exec.mainClass} ${exec.appArgs}</exec.args>
+                <exec.mainClass>${packageClassName}</exec.mainClass>
+                <exec.executable>java</exec.executable>
+                <exec.appArgs>"K{-promenne a in [-1,0,1] b in [-1,0,1] -pole (a b) -podminky (a b) prazdny|opacny -ee (0 0)_rosada = false}{-pole (0 2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 1) neohrozeny (0 1) prazdny (0 2) prazdny (0 0) *rosada (0 3) *rosada -ee (0 0)_rosada = false (0 3) -&gt; (0 1)} {-pole (0 -2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 -1) neohrozeny (0 -2) neohrozeny (0 -1) prazdny (0 -2) prazdny (0 -3) prazdny (0 0) *rosada (0 -4) *rosada -ee (0 0)_rosada = false (0 -4) -&gt; (0 -1)} rosada" "R{-promenne a in &lt;-7,7&gt; b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee (0 0)_rosada = false}{-promenne a in &lt;-7,7&gt; b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee (0 0)_rosada = false} rosada" ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . R . ." ". . . . . . . ." "r . . . k . . r" tb</exec.appArgs>
+            </properties>
+        </action>
+    </actions>

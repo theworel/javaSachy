@@ -1,0 +1,86 @@
+Funkce programu: Program je schopný øešit šachové úlohy ve formátu "bílý dá do x tahù mat". V takových úlohách je mimo standartní šachové figurky možné pro uživatele vytvoøit figurky vlastní, s jinými pravidly pohybu.
+
+Po spuštìní se uživatele program zeptá na definice figur, které budou na šachovnici. Hráè je zadá podle pravidel uvedených níže a ukonèí jejich zadávání vstupem END.
+
+Po zadání figur se program zeptá na zadání vstupní pozice. Tu hráè zadává od posledního øádku k prvnímu, tedy øádek, který je z pohledu uživatele nejvýše je nejvýše i pøi obvyklém zobrazení šachovnice z pohledu bílého hráèe. Každý øádek šachovnice je osm znakù figur nebo prázdných polí (".") oddìlených mezerami.
+
+Figura, ke které pøísluší nìjaké flagy je má defaultnì nastavené na true, pokud chce uživatel zadat pozici s nìjakými flagy nìjaké figury nastavenými na false, mùže jí zadat jako ZNAK_flag1,flag2,... a uvedené flagy budou nastaveny na false.
+
+Po zadání pozice se program zeptá, zda chce hráè øešit šachovou úlohu, nebo jen vypsat všechny možné pozice po jednom tahu (užiteèné pro testování uživatelem vytvoøených figur). Pro øešení šachové úlohy musí šachovnice obsahovat oba krále.
+
+Výstupem øešení šachové úlohy jsou všechny pozice, které skonèily vynuceným vítìzstvím bílého hráèe do zadaného poètu tahù. Výstupem výpisu všech možných pozic po jednom tahu jsou všechny možné pozice po jednom tahu zadaného hráèe.
+
+Ovládání programu z pøíkazové øádky: Program je možné spustit z pøíkazové øádky se vstupním øetìzcem ve tvaru "øetìzec figury" "øetìzec figury" ... "øádek 8" "øádek 7" ... "øádek 1" [funkce programu]
+				     V poli [funkce programu] mùže být "tb" - najde všechny tahy bílého hráèe v dané pozici
+								       "tc" - najde všechny tahy èerného hráèe v dané pozici
+								       "r?" - najde všechny vítìzné postupy bílého do ? tahù
+
+Tvorba vlastních figurek: figurky uživatel zadává jako øetìzec ve formátu ZNAK_FIGURY [øetìzce tahù] [flagy]
+
+ZNAK_FIGURY: jde o øetìzec (ideálnì pouze jeden znak), kterým se bude figura vypisovat na obrazovku. Pro figuru, kterou je možné táhnout, musí na prvním místì být písmeno, protože jeho velikost je na vstupu a výstupu používána pro rozlišení bílých (malá písmena) a èerných (VELKÁ PÍSMENA) figur
+	     Znak k/K je vyhrazen pro krále. Uživatel mùže definovat vzorec králova pohybu, program ale vždy zachová to, že figurka se znakem k/K je ta, jejímž sebráním konèí hra. Šachové úlohy konèící matem tedy musí oba krále obsahovat.
+
+øetìzce tahù: jde o øetìzce, které každý popisuje jeden nebo více tahù figury.
+		Formát øetìzce tahu: {-promenne [øetìzce promìnných] -pole [øetìzec cílového pole] -podminka [øetìzce podmínek, které musí být splnìny, aby se tah dal zahrát] -ee [speciální efekty tahu]
+		
+		promenne: [název promìnné] in [hodnoty], jde o funkcionalitu, která umožòuje zapsání více podobných tahù jedinným øetìzcem. Místo zapisování cílových polí vìže jako (1 0) (2 0) (3 0)...(7 0) staèí zadat a in <1,7> (a 0)
+			  v jednom øetìzci tahu je možné použít libovolný poèet promìnných, ty se vyhodnocují zleva doprava. Je tedy možné napsat øetìzec jako a in <1,3> b in <0,a>, který bude správnì zpracován. Zadání øetìzce a in <0,b> b in <1,4> skonèí chybou.
+			  Obor hodnot promìnných je možné zapsat buï výpisem [cislo,cislo,cislo] nebo intervalem <cislo,cislo> pro interval vèetnì okrajových hodnot a (cislo, cislo) pro interval bez okrajových hodnot. Pøi zápisu intervalem nezáleží na poøadí èísel.
+	
+		pole: øetìzec ve tvaru (r s), kde r i s jsou èíselné hodnoty, promìnné nebo aritmetické výrazy kombinující èíselné hodnoty, promìnné a základní operátory */-+. Absolutní souøadnice na šachovnici jsou urèovány relativnì k pozici hracího kamene, který provádí tah. Pokud chce uživatel z nìjakého dùvodu zapsat jednu nebo obì souøadnice jako absolutní hodnotu, mùže zadat znak $ pøed pøíslušnou souøadnici
+		
+		podminky: Logické výrazy, které v kontextu nìjaké konkrétní pozice a nìjakého konkrétního hracího kamene mají hodnotu buï true nebo false.
+			  Program podporuje tøi druhy podmínek:
+				Podmínka statusu pole: øetìzec ve formátu [øetìzec pole] [hodnota]
+						       øetìzce pro pole hodnota: prazdny/obsazeny/cerny/bily/opacny/shodny/ohrozeny/neohrozeny/ZNAK_FIGURY/FLAG
+						       podmínka ovìøí, zda je dané pole v daném stavu. 
+						       POZNÁMKA: Podmínky ohrozeny/neohrozeny mùžou vést k nejednoznaèným stavùm na šachovnici. Napøíklad na šachovnici se dvìma figurkami se zápisem:
+							{-pole (0 7) -podminky (7 0) neohrozeny}, kde èerný kámen je na poli (7 7) a bílý na poli (0 0) mùže bílý kámen táhnout na pole (0 7) právì tehdy, když èerný nemùže táhnout na pole (7 0) a èerný mùže táhnout na pole (7 0) právì tehdy, když bílý nemùže táhnout na pole (0 7).
+							Rozhodnutí je tedy nutné udìlat arbitrárnì, jinak dojde k pøeteèení zásobníku.
+							Tyto podmínky jsou implementovány tak, že pøi druhém cyklickém volání na stejného hráèe jsou všechny podmínky na ohrožená/neohrožená pole vyhodnoceny jako true. 
+							Jsou v programu ponechány, aby byla možná implementace všech šachových pravidel, tedy i rošád, ale pøi tvorbì vlastních figur je tøeba j používat opatrnì.
+				Podmínka pozice pole: øetìzec ve formátu [øetìzec pole 1] =[øetìzec pole 2] pøípadnì [øetìzec pole 1] !=[øetìzec pole 2]
+						      podmínka ovìøí, zda absolutní adresy polí zadaných uvedenými øetìzci jsou (pøípadnì nejsou) shodné. Používají se pro zjištìní, na jaké pozici je hrací kámen, napøíklad podmínka (0 0) =($1 0) vrátí true, pokud je kámen na druhém øádku, (0 0) =($0 $0) ovìøí, zda je kámen v levém dolním rohu
+				Podmínka flagu: øetìzec ve formátu
+		Extra efekty: Zmìny na šachovnici, které tento tah zpùsobí kromì pohybu táhnoucí figurky. Ve standardním šachu jde o rošády a stavbu nové figurky, když pìšec dosáhne poslední øady.
+			      Program podporuje tøi druhy efektù:
+				Posun z pole na pole: øetìzec ve formátu [øetìzec pole] -> [øetìzec pole]
+						      tento efekt pøesune kámen z pole uvedeného vlevo na pole uvedené vpravo. Pokud na poli vlevo nic neleží, nic se nestane.
+						      POZNÁMKA: Více posunovacích efektù se stejným cílovým polem bude mít nejednoznaèný výsledek.
+				Postavení/sebrání figury z pole: øetìzec ve formátu [ZNAK_FIGURY] -> [øetìzec pole]
+						      tento efekt nastaví cílové pole na hodnotu v nìm uvedenou. Znak figury zaèínající malým písmenem znamená postavení figury barvy shodné s barvou hrajícího kamenu, znak figury s prvním velkým písmenem znamená opak.
+						      S hodnotou "." v poli ZNAK_FIGURY efekt sebere figuru na tomto poli (nahradí jí tokenem prázdného pole)
+
+				Nastavení flagu: øetìzec ve formátu [øetìzec pole]_flag = true/false
+						 nastaví urèený flag figury na daném poli na zadanou hodnotu
+
+		
+		Po vyøešení všech kombinací promìnných jsou za stejné tahy považovány tahy takové, které mají stejné cílové pole a stejné efekty, jejich podmínky jsou pak sjednoceny. Je tedy možné zapsat øadu podmínek zráceným zápisem.
+		Tahy zapsány dvìma rùznymi øetìzci tahù nikdy sjednoceny nebudou, ani pokud jsou jejich cílová pole a efekty stejné, je tedy možné zapsat tah, který je možné zahrát v nìkolika rùzných vzájemnì rozporných pøípadech.
+		
+		Zadávání tahù je také možné zkrátit zkráceným zápisem podmínek statusu pole a efektù postavení/sebrání figury pomocí svislítek v oblatech hodnota a znak_figury. Místo zápisu více rùzných tahù lišících se jen v tìchto hodnotách staèí napsat do tìchtop polí hodnota1|hodnota2|..., 
+		program tento vstup zpracovává stejnì, jako vstup s vìtším množstvím øetìzcù tahù, podmínky tìchto tahù tedy nebudou sjednoceny.
+
+Pøíklady vstupù pro spuštìní programu v pøíkazové øádce:
+
+Rošády bílého hráèe: 
+"K{-promenne a in [-1,0,1] b in [-1,0,1] -pole (a b) -podminky (a b) prazdny|opacny -ee (0 0)_rosada = false}{-pole (0 2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 1) neohrozeny (0 1) prazdny (0 2) prazdny (0 0) *rosada (0 3) *rosada -ee (0 0)_rosada = false (0 3) -> (0 1)} {-pole (0 -2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 -1) neohrozeny (0 -2) neohrozeny (0 -1) prazdny (0 -2) prazdny (0 -3) prazdny (0 0) *rosada (0 -4) *rosada -ee (0 0)_rosada = false (0 -4) -> (0 -1)} rosada" "R{-promenne a in <-7,7> b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee (0 0)_rosada = false}{-promenne a in <-7,7> b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee (0 0)_rosada = false} rosada" ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." "r . . . k . . r" tb
+
+Všechny tahy bílého hráèe ze startovní pozice: 
+"P{-pole (1 0) -podminky (1 0) prazdny (0 0) !=($6 0) -ee}{-pole (2 0) -podminky (1 0) prazdny (2 0) prazdny (0 0) =($1 0) -ee}{-promenne a in [-1,1] -pole (1 a) -podminky (1 a) opacny (0 0) !=($6 0) -ee}{-pole (1 0) -podminky (1 0) prazdny (0 0) =($6 0) -ee j|r|q|n -> (1 0)}{-promenne a in [-1,1] -pole (1 a) -podminky (1 a) opacny (0 0) =($6 0) -ee j|n|r|q -> (1 a)}" "K{-promenne a in [-1,0,1] b in [-1,0,1] -pole (a b) -podminky (a b) prazdny|opacny -ee (0 0)_rosada = false}{-pole (0 2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 1) neohrozeny (0 1) prazdny (0 2) prazdny (0 0) *rosada (0 3) *rosada -ee (0 0)_rosada = false (0 3) -> (0 1)} {-pole (0 -2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 -1) neohrozeny (0 -2) neohrozeny (0 -1) prazdny (0 -2) prazdny (0 -3) prazdny (0 0) *rosada (0 -4) *rosada -ee (0 0)_rosada = false (0 -4) -> (0 -1)} rosada" "N{-promenne a in [1,-1] b in [2,-2] -pole (a b) -podminky (a b) prazdny|opacny -ee}{-promenne a in [-2,2] b in [-1,1] -pole (a b) -podminky (a b) prazdny|opacny -ee}" "R{-promenne a in <-7,7> b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee (0 0)_rosada = false}{-promenne a in <-7,7> b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee (0 0)_rosada = false} rosada" "B{-promenne a in <-7,7> b in (0,a) -pole (a a) -podminky (b b) prazdny (a a) opacny|prazdny -ee}{-promenne a in <-7,7> b in (0,a) -pole (a -a) -podminky (b -b) prazdny (a -a) opacny|prazdny -ee}" "Q{-promenne a in <-7,7> b in (0,a) -pole (a a) -podminky (b b) prazdny (a a) opacny|prazdny -ee}{-promenne a in <-7,7> b in (0,a) -pole (a -a) -podminky (b -b) prazdny (a -a) opacny|prazdny -ee}{-promenne a in <-7,7> b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee}{-promenne a in <-7,7> b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee}" "R N B Q K B N R" "P P P P P P P P" ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." "p p p p p p p p" "r n b q k b n r" tb
+
+Bílý dává mat dvìma tahy: 
+"P{-pole (1 0) -podminky (1 0) prazdny (0 0) !=($6 0) -ee}{-pole (2 0) -podminky (1 0) prazdny (2 0) prazdny (0 0) =($1 0) -ee}{-promenne a in [-1,1] -pole (1 a) -podminky (1 a) opacny (0 0) !=($6 0) -ee}{-pole (1 0) -podminky (1 0) prazdny (0 0) =($6 0) -ee j|r|q|n -> (1 0)}{-promenne a in [-1,1] -pole (1 a) -podminky (1 a) opacny (0 0) =($6 0) -ee j|n|r|q -> (1 a)}" "K{-promenne a in [-1,0,1] b in [-1,0,1] -pole (a b) -podminky (a b) prazdny|opacny -ee (0 0)_rosada = false}{-pole (0 2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 1) neohrozeny (0 1) prazdny (0 2) prazdny (0 0) *rosada (0 3) *rosada -ee (0 0)_rosada = false (0 3) -> (0 1)} {-pole (0 -2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 -1) neohrozeny (0 -2) neohrozeny (0 -1) prazdny (0 -2) prazdny (0 -3) prazdny (0 0) *rosada (0 -4) *rosada -ee (0 0)_rosada = false (0 -4) -> (0 -1)} rosada" "N{-promenne a in [1,-1] b in [2,-2] -pole (a b) -podminky (a b) prazdny|opacny -ee}{-promenne a in [-2,2] b in [-1,1] -pole (a b) -podminky (a b) prazdny|opacny -ee}" "R{-promenne a in <-7,7> b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee (0 0)_rosada = false}{-promenne a in <-7,7> b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee (0 0)_rosada = false} rosada" "B{-promenne a in <-7,7> b in (0,a) -pole (a a) -podminky (b b) prazdny (a a) opacny|prazdny -ee}{-promenne a in <-7,7> b in (0,a) -pole (a -a) -podminky (b -b) prazdny (a -a) opacny|prazdny -ee}" "Q{-promenne a in <-7,7> b in (0,a) -pole (a a) -podminky (b b) prazdny (a a) opacny|prazdny -ee}{-promenne a in <-7,7> b in (0,a) -pole (a -a) -podminky (b -b) prazdny (a -a) opacny|prazdny -ee}{-promenne a in <-7,7> b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee}{-promenne a in <-7,7> b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee}" ". . . . N . B K" ". . . . . . . ." ". . . . . . p k" ". . . . . . . ." ". . . . . . . n" ". . . . . . . ." ". . . . . . . ." ". . . . . . . ."  "r2"
+
+Všechny tahy speciální figurky jezdce, který se místo o 1 a 2 pole pohybuje o 2 a 3 pole: 
+"P{-pole (1 0) -podminky (1 0) prazdny (0 0) !=($6 0) -ee}{-pole (2 0) -podminky (1 0) prazdny (2 0) prazdny (0 0) =($1 0) -ee}{-promenne a in [-1,1] -pole (1 a) -podminky (1 a) opacny (0 0) !=($6 0) -ee}{-pole (1 0) -podminky (1 0) prazdny (0 0) =($6 0) -ee j|r|q|n -> (1 0)}{-promenne a in [-1,1] -pole (1 a) -podminky (1 a) opacny (0 0) =($6 0) -ee j|n|r|q -> (1 a)}" "RJ{-promenne a in [3,-3] b in [2, -2] -pole (a b) -podminky (a b) prazdny|opacny -ee}{-promenne a in [-2,2] b in [-3, 3] -pole (a b) -podminky (a b) prazdny|opacny -ee}" ". . . . . . . ." ". . . . . . . ." ". p . . . . . P" ". . . . . . . ." ". . . . RJ . . ." ". . . . . . . ." ". . . . . . . ." ". . . . . . . ." tc
+
+Implementace všech figur ve standardním šachu:
+
+Pìšák: P{-pole (1 0) -podminky (1 0) prazdny (0 0) !=($6 0) -ee}{-pole (2 0) -podminky (1 0) prazdny (2 0) prazdny (0 0) =($1 0) -ee}{-promenne a in [-1,1] -pole (1 a) -podminky (1 a) opacny (0 0) !=($6 0) -ee}{-pole (1 0) -podminky (1 0) prazdny (0 0) =($6 0) -ee j|r|q|n -> (1 0)}{-promenne a in [-1,1] -pole (1 a) -podminky (1 a) opacny (0 0) =($6 0) -ee j|n|r|q -> (1 a)}
+Král: K{-promenne a in [-1,0,1] b in [-1,0,1] -pole (a b) -podminky (a b) prazdny|opacny -ee (0 0)_rosada = false}{-pole (0 2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 1) neohrozeny (0 1) prazdny (0 2) prazdny (0 0) *rosada (0 3) *rosada -ee (0 0)_rosada = false (0 3) -> (0 1)} {-pole (0 -2) -podminky (0 0) =($0 $4) (0 0) neohrozeny (0 -1) neohrozeny (0 -2) neohrozeny (0 -1) prazdny (0 -2) prazdny (0 -3) prazdny (0 0) *rosada (0 -4) *rosada -ee (0 0)_rosada = false (0 -4) -> (0 -1)} rosada 
+Jezdec: N{-promenne a in [1,-1] b in [2,-2] -pole (a b) -podminky (a b) prazdny|opacny -ee}{-promenne a in [-2,2] b in [-1,1] -pole (a b) -podminky (a b) prazdny|opacny -ee}
+Vìž: R{-promenne a in <-7,7> b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee (0 0)_rosada = false}{-promenne a in <-7,7> b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee (0 0)_rosada = false} rosada
+Støelec: B{-promenne a in <-7,7> b in (0,a) -pole (a a) -podminky (b b) prazdny (a a) opacny|prazdny -ee}{-promenne a in <-7,7> b in (0,a) -pole (a -a) -podminky (b -b) prazdny (a -a) opacny|prazdny -ee}
+Dáma: Q{-promenne a in <-7,7> b in (0,a) -pole (a a) -podminky (b b) prazdny (a a) opacny|prazdny -ee}{-promenne a in <-7,7> b in (0,a) -pole (a -a) -podminky (b -b) prazdny (a -a) opacny|prazdny -ee}{-promenne a in <-7,7> b in (0,a) -pole (a 0) -podminky (b 0) prazdny (a 0) prazdny|opacny -ee}{-promenne a in <-7,7> b in (0,a) -pole (0 a) -podminky (0 b) prazdny (0 a) prazdny|opacny -ee}
+
